@@ -10,6 +10,9 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { FloatingWhatsApp } from "@/components/floating-whatsapp";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -77,16 +80,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Jagannath Handloom — Heritage Handloom Sarees & Devotional Wear, Mayapur" },
+      {
+        name: "description",
+        content:
+          "Premium handloom sarees, gopi dresses, dhuti, kurtas & traditional collections woven in Mayapur. A heritage fashion house. Worldwide courier available.",
+      },
+      { name: "author", content: "Jagannath Handloom" },
+      { property: "og:title", content: "Jagannath Handloom — Heritage Woven Into Every Thread" },
+      {
+        property: "og:description",
+        content:
+          "Premium handloom sarees, gopi dresses & traditional wear inspired by the timeless beauty of Mayapur.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -118,8 +134,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <SiteHeader />
+      <main className="min-h-screen">
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </main>
+      <SiteFooter />
+      <FloatingWhatsApp />
     </QueryClientProvider>
   );
 }
