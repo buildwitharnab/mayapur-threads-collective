@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as LookbookRouteImport } from './routes/lookbook'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as AboutRouteImport } from './routes/about'
@@ -32,6 +33,11 @@ const LookbookRoute = LookbookRouteImport.update({
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsRoute = CollectionsRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/catalog': typeof CatalogRoute
   '/collections': typeof CollectionsRouteWithChildren
+  '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/lookbook': typeof LookbookRoute
   '/stories': typeof StoriesRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/catalog': typeof CatalogRoute
   '/collections': typeof CollectionsRouteWithChildren
+  '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/lookbook': typeof LookbookRoute
   '/stories': typeof StoriesRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/catalog': typeof CatalogRoute
   '/collections': typeof CollectionsRouteWithChildren
+  '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/lookbook': typeof LookbookRoute
   '/stories': typeof StoriesRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/catalog'
     | '/collections'
+    | '/contact'
     | '/gallery'
     | '/lookbook'
     | '/stories'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/catalog'
     | '/collections'
+    | '/contact'
     | '/gallery'
     | '/lookbook'
     | '/stories'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/catalog'
     | '/collections'
+    | '/contact'
     | '/gallery'
     | '/lookbook'
     | '/stories'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CatalogRoute: typeof CatalogRoute
   CollectionsRoute: typeof CollectionsRouteWithChildren
+  ContactRoute: typeof ContactRoute
   GalleryRoute: typeof GalleryRoute
   LookbookRoute: typeof LookbookRoute
   StoriesRoute: typeof StoriesRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections': {
@@ -231,6 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CatalogRoute: CatalogRoute,
   CollectionsRoute: CollectionsRouteWithChildren,
+  ContactRoute: ContactRoute,
   GalleryRoute: GalleryRoute,
   LookbookRoute: LookbookRoute,
   StoriesRoute: StoriesRoute,
