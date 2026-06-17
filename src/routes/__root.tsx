@@ -99,6 +99,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Mayapur Threads is a luxury multi-page website showcasing Jagannath Handloom's heritage fashion." },
       { property: "og:description", content: "Mayapur Threads is a luxury multi-page website showcasing Jagannath Handloom's heritage fashion." },
       { name: "twitter:description", content: "Mayapur Threads is a luxury multi-page website showcasing Jagannath Handloom's heritage fashion." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/eef0ebfc-86d4-4456-9ebb-56564238a666/id-preview-9494aa74--b8af43e2-6870-4812-9c7f-c2e2c3469542.lovable.app-1781672817281.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/eef0ebfc-86d4-4456-9ebb-56564238a666/id-preview-9494aa74--b8af43e2-6870-4812-9c7f-c2e2c3469542.lovable.app-1781672817281.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
