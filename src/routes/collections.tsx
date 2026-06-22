@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Reveal } from "@/components/reveal";
 import { PageHero } from "@/components/page-hero";
 import { collections } from "@/data/collections";
 import { getProductsByCollection } from "@/data/products";
+import { productsQueryOptions } from "@/lib/products.queries";
 import festivalImg from "@/assets/collections/festival.jpg";
 
 export const Route = createFileRoute("/collections")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   head: () => ({
     meta: [
       { title: "Collections — Jagannath Handloom" },
@@ -27,6 +30,7 @@ export const Route = createFileRoute("/collections")({
 });
 
 function CollectionsPage() {
+  const { data: products } = useSuspenseQuery(productsQueryOptions);
   return (
     <>
       <PageHero
@@ -39,7 +43,7 @@ function CollectionsPage() {
       <section className="mx-auto max-w-[1600px] px-6 py-20 sm:px-10 lg:px-12 lg:py-28">
         <div className="space-y-20 lg:space-y-28">
           {collections.map((c, i) => {
-            const count = getProductsByCollection(c.slug).length;
+            const count = getProductsByCollection(products, c.slug).length;
             const reversed = i % 2 === 1;
             return (
               <Reveal key={c.slug}>

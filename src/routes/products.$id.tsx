@@ -10,16 +10,18 @@ import {
   formatPrice,
   type Product,
 } from "@/data/products";
+import { productsQueryOptions } from "@/lib/products.queries";
 import { getCollection } from "@/data/collections";
 import { whatsappLink } from "@/data/site";
 
 export const Route = createFileRoute("/products/$id")({
-  loader: ({ params }) => {
-    const product = getProduct(params.id);
+  loader: async ({ params, context }) => {
+    const all = await context.queryClient.ensureQueryData(productsQueryOptions);
+    const product = getProduct(all, params.id);
     if (!product) throw notFound();
     return {
       product,
-      related: getRelatedProducts(product),
+      related: getRelatedProducts(all, product),
       collection: getCollection(product.collectionSlug),
     };
   },
