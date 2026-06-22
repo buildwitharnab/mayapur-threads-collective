@@ -1,9 +1,6 @@
 // Server-only product logic. The .server.ts suffix keeps this out of client bundles.
 import { createClient } from "@supabase/supabase-js";
-import {
-  useSession,
-  type useSession as useSessionType,
-} from "@tanstack/react-start/server";
+import { useSession } from "@tanstack/react-start/server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { ProductRow } from "@/data/products";
 
@@ -20,9 +17,10 @@ function getSessionConfig() {
   return { password, name: "jh_admin", maxAge: 60 * 60 * 12 };
 }
 
-async function getSession(): Promise<Awaited<ReturnType<typeof useSessionType<SessionData>>>> {
+async function getSession() {
   return useSession<SessionData>(getSessionConfig());
 }
+
 
 export interface ProductInput {
   name: string;
