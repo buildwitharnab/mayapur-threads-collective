@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Reveal } from "@/components/reveal";
 import { PageHero } from "@/components/page-hero";
 import { ProductCard } from "@/components/product-card";
-import { products, categories } from "@/data/products";
+import { categories, type Product } from "@/data/products";
+import { productsQueryOptions } from "@/lib/products.queries";
 import sareeImg from "@/assets/collections/handloom-sarees.jpg";
 
 export const Route = createFileRoute("/catalog")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   head: () => ({
     meta: [
       { title: "Catalog — Jagannath Handloom" },
@@ -30,6 +33,7 @@ const sorts = [
 ] as const;
 
 function Catalog() {
+  const { data: products } = useSuspenseQuery(productsQueryOptions);
   const [active, setActive] = useState<string>("All");
   const [sort, setSort] = useState<string>("featured");
 
@@ -40,7 +44,7 @@ function Catalog() {
     if (sort === "featured")
       list = [...list].sort((a, b) => Number(b.isBestSeller) - Number(a.isBestSeller));
     return list;
-  }, [active, sort]);
+  }, [active, sort, products]);
 
   const tabs = ["All", ...categories];
 
