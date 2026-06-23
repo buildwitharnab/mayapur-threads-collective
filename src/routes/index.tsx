@@ -4,9 +4,8 @@ import { ArrowRight, MapPin, MessageCircle } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { SectionDivider } from "@/components/section-divider";
 import { ProductCard } from "@/components/product-card";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { collections } from "@/data/collections";
-import { productsQueryOptions } from "@/lib/products.queries";
+import { bestSellers } from "@/data/products";
 import { testimonials } from "@/data/testimonials";
 import { SITE, whatsappLink } from "@/data/site";
 import heroImg from "@/assets/hero-home.jpg";
@@ -15,7 +14,6 @@ import heritageImg from "@/assets/heritage.jpg";
 import storeImg from "@/assets/store.jpg";
 
 export const Route = createFileRoute("/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(productsQueryOptions),
   head: () => ({
     meta: [
       { title: "Jagannath Handloom — Heritage Handloom Sarees & Devotional Wear" },
@@ -39,8 +37,6 @@ export const Route = createFileRoute("/")({
 const ease = [0.16, 1, 0.3, 1] as const;
 
 function Home() {
-  const { data: products } = useSuspenseQuery(productsQueryOptions);
-  const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 8);
   return (
     <>
       {/* HERO */}

@@ -5,16 +5,14 @@ import { SectionDivider } from "@/components/section-divider";
 import { ProductCard } from "@/components/product-card";
 import { getCollection, collections } from "@/data/collections";
 import { getProductsByCollection, type Product } from "@/data/products";
-import { productsQueryOptions } from "@/lib/products.queries";
 import { whatsappLink } from "@/data/site";
 import eyes from "@/assets/jagannath-eyes.png";
 
 export const Route = createFileRoute("/collections/$slug")({
-  loader: async ({ params, context }) => {
+  loader: ({ params }) => {
     const collection = getCollection(params.slug);
     if (!collection) throw notFound();
-    const all = await context.queryClient.ensureQueryData(productsQueryOptions);
-    return { collection, products: getProductsByCollection(all, params.slug) };
+    return { collection, products: getProductsByCollection(params.slug) };
   },
   head: ({ loaderData }) => ({
     meta: loaderData

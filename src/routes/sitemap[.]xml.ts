@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { collections } from "@/data/collections";
+import { products } from "@/data/products";
 
 const BASE_URL = "";
 
@@ -8,8 +9,6 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const { dbListProducts } = await import("@/lib/products.server");
-        const products = await dbListProducts();
         const paths = [
           "/",
           "/collections",
