@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ProductRow } from "@/data/products";
 
 const colorSchema = z.object({
@@ -31,54 +32,47 @@ export const listProducts = createServerFn({ method: "GET" }).handler(
   },
 );
 
-// --- Admin auth ---
-export const adminLoginFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { password: string }) =>
-    z.object({ password: z.string().min(1).max(200) }).parse(data),
-  )
-  .handler(async ({ data }) => {
-    const { adminLogin } = await import("./products.server");
-    return adminLogin(data.password);
+// --- Roles: ensure the signed-in user has a role and report admin status ---
+export const ensureRoleFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ isAdmin: boolean }> => {
+    const { ensureUserRole } = await import("./products.server");
+    const email = (context.claims as { email?: string })?.email;
+    return ensureUserRole(context.userId, email);
   });
 
-export const adminLogoutFn = createServerFn({ method: "POST" }).handler(async () => {
-  const { adminLogout } = await import("./products.server");
-  return adminLogout();
-});
-
-export const adminStatusFn = createServerFn({ method: "GET" }).handler(async () => {
-  const { adminStatus } = await import("./products.server");
-  return adminStatus();
-});
-
-// --- Admin writes ---
+// --- Admin writes (require a signed-in admin) ---
 export const createProductFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: ProductInputData) => productInputSchema.parse(data))
-  .handler(async ({ data }): Promise<ProductRow> => {
+  .handler(async ({ data, context }): Promise<ProductRow> => {
     const { dbCreateProduct } = await import("./products.server");
-    return dbCreateProduct(data);
+    return dbCreateProduct(context.userId, data);
   });
 
 export const updateProductFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string } & ProductInputData) =>
     z.object({ id: z.string().min(1).max(80) }).and(productInputSchema).parse(data),
   )
-  .handler(async ({ data }): Promise<ProductRow> => {
+  .handler(async ({ data, context }): Promise<ProductRow> => {
     const { id, ...input } = data;
     const { dbUpdateProduct } = await import("./products.server");
-    return dbUpdateProduct(id, input);
+    return dbUpdateProduct(context.userId, id, input);
   });
 
 export const deleteProductFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string }) =>
     z.object({ id: z.string().min(1).max(80) }).parse(data),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { dbDeleteProduct } = await import("./products.server");
-    return dbDeleteProduct(data.id);
+    return dbDeleteProduct(context.userId, data.id);
   });
 
 export const uploadImageFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { fileBase64: string; fileName: string; contentType: string }) =>
     z
       .object({
@@ -88,7 +82,7 @@ export const uploadImageFn = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { uploadImage } = await import("./products.server");
-    return uploadImage(data.fileBase64, data.fileName, data.contentType);
+    return uploadImage(context.userId, data.fileBase64, data.fileName, data.contentType);
   });
