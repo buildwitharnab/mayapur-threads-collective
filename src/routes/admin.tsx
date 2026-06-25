@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Upload, X, Loader2, LogOut, Search, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,9 +21,7 @@ import { collections } from "@/data/collections";
 import { formatPrice, type ProductColor, type ProductRow } from "@/data/products";
 import { resolveProductImage } from "@/data/product-images";
 import {
-  adminStatusFn,
-  adminLoginFn,
-  adminLogoutFn,
+  ensureRoleFn,
   listProducts,
   createProductFn,
   updateProductFn,
@@ -31,6 +30,7 @@ import {
 } from "@/lib/products.functions";
 
 export const Route = createFileRoute("/admin")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Admin — Jagannath Handloom" },
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/admin")({
   }),
   component: AdminPage,
 });
+
 
 const collectionCategory: Record<string, string> = {
   "handloom-sarees": "Saree",
