@@ -176,9 +176,10 @@ function NotAuthorized() {
 
 function Dashboard() {
   const qc = useQueryClient();
-  const logoutFn = useServerFn(adminLogoutFn);
+  const navigate = useNavigate();
   const listFn = useServerFn(listProducts);
   const deleteFn = useServerFn(deleteProductFn);
+
 
   const products = useQuery({ queryKey: ["admin-products"], queryFn: () => listFn() });
   const [search, setSearch] = useState("");
