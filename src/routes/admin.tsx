@@ -102,10 +102,38 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 function AdminPage() {
-  const statusFn = useServerFn(adminStatusFn);
-  const status = useQuery({ queryKey: ["admin-status"], queryFn: () => statusFn() });
+  const navigate = useNavigate();
+  const ensureRole = useServerFn(ensureRoleFn);
+  const [authed, setAuthed] = useState(false);
+  const [checking, setChecking] = useState(true);
 
-  if (status.isLoading) {
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      if (data.session) {
+        setAuthed(true);
+        setChecking(false);
+      } else {
+        navigate({ to: "/auth", search: { redirect: "/admin" } });
+      }
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) navigate({ to: "/auth", search: { redirect: "/admin" } });
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  const role = useQuery({
+    queryKey: ["admin-role"],
+    queryFn: () => ensureRole(),
+    enabled: authed,
+  });
+
+  if (checking || (authed && role.isLoading)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Loader2 className="animate-spin text-maroon" />
@@ -113,59 +141,38 @@ function AdminPage() {
     );
   }
 
-  return status.data?.isAdmin ? <Dashboard /> : <LoginScreen />;
-}
-
-function LoginScreen() {
-  const qc = useQueryClient();
-  const loginFn = useServerFn(adminLoginFn);
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await loginFn({ data: { password } });
-      if (res.ok) {
-        toast.success("Welcome back");
-        await qc.invalidateQueries({ queryKey: ["admin-status"] });
-      } else {
-        toast.error("Incorrect password");
-      }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  if (authed && role.data?.isAdmin) return <Dashboard />;
+  if (authed) return <NotAuthorized />;
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 pt-24">
-      <p className="eyebrow">Store Management</p>
-      <h1 className="mt-2 font-display text-4xl font-medium text-maroon">Admin Login</h1>
-      <p className="mt-3 text-sm text-muted-foreground">
-        Enter the admin password to manage products.
-      </p>
-      <form onSubmit={submit} className="mt-8 space-y-4">
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoFocus
-            className="mt-1.5"
-          />
-        </div>
-        <Button type="submit" disabled={loading || !password} className="w-full bg-maroon text-ivory hover:bg-maroon/90">
-          {loading ? <Loader2 className="animate-spin" /> : "Sign in"}
-        </Button>
-      </form>
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <Loader2 className="animate-spin text-maroon" />
     </div>
   );
 }
+
+async function signOut(navigate: ReturnType<typeof useNavigate>) {
+  await supabase.auth.signOut();
+  navigate({ to: "/auth", search: { redirect: "/admin" } });
+}
+
+function NotAuthorized() {
+  const navigate = useNavigate();
+  return (
+    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 pt-24 text-center">
+      <p className="eyebrow">Store Management</p>
+      <h1 className="mt-2 font-display text-4xl font-medium text-maroon">No access</h1>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Your account is signed in but does not have admin permissions. Contact the store owner if
+        you believe this is a mistake.
+      </p>
+      <Button variant="outline" className="mt-8" onClick={() => signOut(navigate)}>
+        <LogOut size={16} /> Sign out
+      </Button>
+    </div>
+  );
+}
+
 
 function Dashboard() {
   const qc = useQueryClient();
