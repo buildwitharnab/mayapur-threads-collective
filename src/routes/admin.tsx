@@ -216,9 +216,11 @@ function Dashboard() {
   }
 
   async function handleLogout() {
-    await logoutFn();
-    await qc.invalidateQueries({ queryKey: ["admin-status"] });
+    await qc.cancelQueries();
+    qc.clear();
+    await signOut(navigate);
   }
+
 
   if (editing) {
     return (
